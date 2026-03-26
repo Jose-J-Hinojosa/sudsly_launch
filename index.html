@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#1a3356">
+  <meta name="description" content="Sudsly — Laundry pickup and delivery in Grosse Pointe. We give you back the most valuable thing you own.">
+  <title>Sudsly — We Give You Back Your Time</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!--
+  ════════════════════════════════════════════════════════════
+  GOOGLE SHEETS EMAIL BACKEND — SETUP INSTRUCTIONS
+  ════════════════════════════════════════════════════════════
+  This form POSTs signups directly to a Google Sheet.
+  One-time setup (takes ~5 minutes):
+
+  1. Create a new Google Sheet at sheets.google.com
+     Name the first sheet "Signups"
+     Add headers in row 1: Timestamp | Email
+
+  2. In the sheet, go to Extensions → Apps Script
+
+  3. Paste this code and save it:
+
+  ──────────────────────────────────────────────────
+  function doPost(e) {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet()
+                  .getSheetByName("Signups");
+    var data  = JSON.parse(e.postData.contents);
+    sheet.appendRow([
+      new Date().toLocaleString("en-US", {timeZone:"America/Detroit"}),
+      data.email
+    ]);
+    return ContentService
+      .createTextOutput(JSON.stringify({status:"ok"}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  ──────────────────────────────────────────────────
+
+  4. Click Deploy → New Deployment
+     Type: Web App
+     Execute as: Me
+     Who has access: Anyone
+     → Click Deploy → Copy the Web App URL
+
+  5. Paste that URL below where it says PASTE_YOUR_URL_HERE
+  ════════════════════════════════════════════════════════════
+  -->
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:        #1a3356;
+      --navy-deep:   #122440;
+      --navy-mid:    #254878;
+      --cream:       #f5f1eb;
+      --cream-light: #faf8f5;
+      --white:       #ffffff;
+      --text:        #1a2236;
+      --muted:       #6b7280;
+      --soft:        #9ca3af;
+      --border:      rgba(26, 51, 86, 0.1);
+      --shadow:      0 2px 24px rgba(26, 51, 86, 0.08);
+      --shadow-lg:   0 8px 48px rgba(26, 51, 86, 0.14);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--cream-light);
+      color: var(--text);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ════════════════════════════════
+       HERO — parallax image section
+    ════════════════════════════════ */
+    .hero {
+      position: relative;
+      height: 100svh;
+      min-height: 600px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0 28px;
+    }
+
+    /*
+      PARALLAX BACKGROUND
+      ─────────────────────────────────────────────────────────
+      To replace the placeholder with a real photo:
+        1. Save your image (ideally 1800×1200px or larger, dark/moody)
+        2. Change background-image below from the gradient to:
+           background-image: url('your-photo.jpg');
+        3. You can also use a free Unsplash URL if needed temporarily
+      ─────────────────────────────────────────────────────────
+    */
+    .hero-parallax {
+      position: absolute;
+      inset: -25% 0;
+      height: 150%;
+      will-change: transform;
+
+      /* ─── PLACEHOLDER (remove gradient once you have a photo) ─── */
+      background-image:
+        linear-gradient(to bottom,
+          rgba(18, 36, 64, 0.72) 0%,
+          rgba(18, 36, 64, 0.55) 40%,
+          rgba(18, 36, 64, 0.68) 100%),
+        radial-gradient(ellipse 110% 80% at 40% 60%,
+          #2a4f7a 0%,
+          #1a3356 45%,
+          #0f1f38 100%);
+      /* ─── END PLACEHOLDER ─── */
+
+      background-size: cover;
+      background-position: center;
+    }
+
+    /* Warm vignette overlay for photo blending */
+    .hero-vignette {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% 100%, rgba(15, 31, 56, 0.55), transparent),
+        linear-gradient(to bottom, rgba(15, 31, 56, 0.25) 0%, transparent 40%,  rgba(15, 31, 56, 0.35) 100%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 740px;
+    }
+
+    .hero-eyebrow {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 28px;
+      animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .hero-wordmark {
+      font-size: clamp(80px, 18vw, 140px);
+      font-weight: 800;
+      letter-spacing: -0.045em;
+      line-height: 1;
+      color: #ffffff;
+      margin-bottom: 28px;
+      animation: fadeUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
+    }
+
+    .hero-headline {
+      font-size: clamp(18px, 3.8vw, 26px);
+      font-weight: 400;
+      color: rgba(255,255,255,0.88);
+      line-height: 1.45;
+      letter-spacing: -0.01em;
+      max-width: 520px;
+      margin: 0 auto 36px;
+      animation: fadeUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both;
+    }
+
+    .hero-tagline {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+      animation: fadeUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.28s both;
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both;
+    }
+
+    .scroll-bar {
+      width: 1px;
+      height: 44px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.5), transparent);
+      animation: scrollPulse 2.4s ease-in-out infinite;
+    }
+
+    @keyframes scrollPulse {
+      0%,100% { opacity: 0.3; transform: scaleY(1) translateY(0); }
+      50%      { opacity: 0.9; transform: scaleY(0.6) translateY(8px); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ════════════════════════════════
+       STATEMENT
+    ════════════════════════════════ */
+    .statement {
+      background: var(--white);
+      padding: clamp(80px, 12vw, 130px) 28px;
+      text-align: center;
+    }
+
+    .statement-line {
+      font-size: clamp(36px, 7vw, 78px);
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      line-height: 1.06;
+      color: var(--navy);
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    /* ════════════════════════════════
+       TIME / FAMILY PULL
+    ════════════════════════════════ */
+    .time-section {
+      background: var(--cream);
+      padding: clamp(64px, 10vw, 110px) 28px;
+    }
+
+    .time-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+
+    .time-text .big-num {
+      font-size: clamp(72px, 12vw, 110px);
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      line-height: 1;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+
+    .time-text .big-label {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .time-text p {
+      font-size: clamp(16px, 2.2vw, 19px);
+      line-height: 1.7;
+      color: var(--text);
+      font-weight: 400;
+    }
+
+    .time-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .time-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 20px 22px;
+      background: var(--white);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    .time-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: rgba(26,51,86,0.07);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .time-icon svg { width: 20px; height: 20px; }
+
+    .time-item-text strong {
+      display: block;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 3px;
+    }
+
+    .time-item-text span {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ════════════════════════════════
+       HOW IT WORKS — 4 steps
+    ════════════════════════════════ */
+    .how {
+      background: var(--white);
+      padding: clamp(64px, 10vw, 110px) 28px;
+    }
+
+    .section-eyebrow {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--navy-mid);
+      margin-bottom: 14px;
+      opacity: 0.7;
+    }
+
+    .section-heading {
+      text-align: center;
+      font-size: clamp(28px, 5vw, 50px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--navy);
+      margin-bottom: clamp(44px, 7vw, 72px);
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+
+    .step {
+      display: flex;
+      flex-direction: column;
+      padding: 32px 24px 34px;
+      background: var(--cream-light);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      transition: transform 0.3s cubic-bezier(0.16,1,0.3,1),
+                  box-shadow 0.3s cubic-bezier(0.16,1,0.3,1);
+    }
+
+    .step:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .step-num {
+      font-size: 38px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: rgba(26,51,86,0.10);
+      line-height: 1;
+      margin-bottom: 20px;
+    }
+
+    .step-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      background: var(--navy);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .step-icon svg { width: 22px; height: 22px; }
+
+    .step-title {
+      font-size: 17px;
+      font-weight: 650;
+      letter-spacing: -0.02em;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+
+    .step-body {
+      font-size: 13.5px;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+
+    /* ════════════════════════════════
+       TRUST STRIP
+    ════════════════════════════════ */
+    .trust {
+      background: var(--navy);
+      padding: 64px 28px;
+    }
+
+    .trust-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      text-align: center;
+    }
+
+    .trust-stat {
+      font-size: clamp(36px, 6vw, 56px);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+
+    .trust-label {
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    /* ════════════════════════════════
+       TEAM
+    ════════════════════════════════ */
+    .team {
+      background: var(--cream);
+      padding: clamp(64px, 10vw, 110px) 28px;
+    }
+
+    .team-row {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+      max-width: 720px;
+      margin: 0 auto;
+      flex-wrap: wrap;
+    }
+
+    .member {
+      flex: 1;
+      min-width: 240px;
+      max-width: 310px;
+      background: var(--white);
+      border-radius: 22px;
+      padding: 36px 28px 32px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+    }
+
+    .member:hover { transform: translateY(-4px); }
+
+    /*
+      PHOTO PLACEHOLDER
+      ─────────────────────────────────────────────────────────
+      To replace with a real photo, swap the <div class="photo">
+      element with:
+        <img class="photo" src="jose.jpg" alt="Jose Hinojosa">
+      Photo should be square, min 300×300px.
+      ─────────────────────────────────────────────────────────
+    */
+    .photo {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin-bottom: 22px;
+      background: linear-gradient(140deg, #dde4ee, #c5d0e0);
+      border: 3px solid rgba(26,51,86,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .photo svg { width: 42px; height: 42px; color: #8fa3bc; }
+
+    /* When replacing with <img class="photo">, these styles apply automatically */
+    img.photo { object-fit: cover; }
+
+    .member-role {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--navy-mid);
+      margin-bottom: 8px;
+      opacity: 0.75;
+    }
+
+    .member-name {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      color: var(--navy);
+      margin-bottom: 10px;
+    }
+
+    .member-bio {
+      font-size: 13.5px;
+      line-height: 1.65;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    .member-link {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--navy-mid);
+      text-decoration: none;
+      letter-spacing: 0.02em;
+      opacity: 0.7;
+      transition: opacity 0.15s;
+    }
+
+    .member-link:hover { opacity: 1; }
+
+    .team-note {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 14px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* ════════════════════════════════
+       EMAIL CAPTURE (CTA)
+    ════════════════════════════════ */
+    .cta {
+      background: var(--navy);
+      padding: clamp(80px, 13vw, 130px) 28px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta::before {
+      content: '';
+      position: absolute;
+      top: -40%; left: 50%;
+      transform: translateX(-50%);
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(74,120,180,0.18) 0%, transparent 68%);
+      pointer-events: none;
+    }
+
+    .cta-kicker {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 18px;
+    }
+
+    .cta-heading {
+      font-size: clamp(30px, 5.5vw, 54px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: #ffffff;
+      line-height: 1.1;
+      margin-bottom: 14px;
+      max-width: 580px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cta-sub {
+      font-size: 16px;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 44px;
+      letter-spacing: -0.01em;
+    }
+
+    .form-wrap { max-width: 440px; margin: 0 auto; }
+
+    .email-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .email-input {
+      flex: 1;
+      min-width: 0;
+      padding: 15px 18px;
+      background: rgba(255,255,255,0.09);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 12px;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+      -webkit-appearance: none;
+    }
+
+    .email-input::placeholder { color: rgba(255,255,255,0.35); }
+
+    .email-input:focus {
+      border-color: rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.12);
+    }
+
+    .submit-btn {
+      padding: 15px 24px;
+      background: #ffffff;
+      color: var(--navy);
+      border: none;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: opacity 0.15s, transform 0.15s;
+      -webkit-appearance: none;
+    }
+
+    .submit-btn:hover  { opacity: 0.9; }
+    .submit-btn:active { transform: scale(0.96); }
+
+    .submit-btn.loading { opacity: 0.6; pointer-events: none; }
+
+    .success-msg {
+      display: none;
+      font-size: 17px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.9);
+      padding: 16px 0;
+      letter-spacing: -0.01em;
+    }
+
+    .form-note {
+      margin-top: 14px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.3);
+    }
+
+    /* ════════════════════════════════
+       FOOTER
+    ════════════════════════════════ */
+    footer {
+      background: var(--navy-deep);
+      padding: 28px;
+      text-align: center;
+    }
+
+    .footer-text {
+      font-size: 13px;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: -0.01em;
+    }
+
+    /* ════════════════════════════════
+       SCROLL REVEAL
+    ════════════════════════════════ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition:
+        opacity  0.75s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal-pop {
+      opacity: 0;
+      transform: scale(0.95) translateY(20px);
+      transition:
+        opacity  0.85s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal.in, .reveal-pop.in {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ════════════════════════════════
+       RESPONSIVE
+    ════════════════════════════════ */
+    @media (max-width: 860px) {
+      .steps {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 560px;
+      }
+
+      .trust-inner { grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    }
+
+    @media (max-width: 680px) {
+      .time-inner {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+
+      .trust-inner { grid-template-columns: 1fr; gap: 32px; }
+    }
+
+    @media (max-width: 600px) {
+      .steps {
+        grid-template-columns: 1fr;
+        max-width: 360px;
+      }
+
+      .email-row { flex-direction: column; }
+      .submit-btn { width: 100%; padding: 16px; }
+
+      .team-row { flex-direction: column; align-items: center; }
+      .member { max-width: 340px; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════ HERO ══════════ -->
+  <section class="hero">
+    <div class="hero-parallax" id="heroBg"></div>
+    <div class="hero-vignette"></div>
+    <div class="hero-content">
+      <h1 class="hero-wordmark">Sudsly</h1>
+      <p class="hero-headline">We give you back the most valuable thing you own.</p>
+      <p class="hero-tagline">Pick up · Wash · Fold · Deliver</p>
+    </div>
+    <div class="hero-scroll" aria-hidden="true">
+      <div class="scroll-bar"></div>
+    </div>
+  </section>
+
+  <!-- ══════════ STATEMENT ══════════ -->
+  <section class="statement">
+    <p class="statement-line reveal-pop">
+      You have better things to do.
+    </p>
+  </section>
+
+  <!-- ══════════ TIME / FAMILY ══════════ -->
+  <section class="time-section">
+    <div class="time-inner">
+      <div class="time-text reveal">
+        <div class="big-num">62</div>
+        <div class="big-label">Hours a year</div>
+        <p>
+          That's what laundry costs the average American family. Not just time
+          in front of a machine, it's a soccer season missed. A dozen dinners
+          rushed. Weekends that never fully felt like weekends.
+          <br><br>
+          Sudsly gives those hours back. So you can be where it actually matters.
+        </p>
+      </div>
+      <div class="time-list">
+        <div class="time-item reveal" data-delay="60">
+          <div class="time-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#1a3356" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+            </svg>
+          </div>
+          <div class="time-item-text">
+            <strong>For families</strong>
+            <span>Stop managing laundry around everything else. Let us handle it so you can handle life.</span>
+          </div>
+        </div>
+        <div class="time-item reveal" data-delay="140">
+          <div class="time-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#1a3356" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div class="time-item-text">
+            <strong>For the time-strapped</strong>
+            <span>Between work, kids, and everything in between, laundry is the one thing you shouldn't have to think about.</span>
+          </div>
+        </div>
+        <div class="time-item reveal" data-delay="220">
+          <div class="time-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#1a3356" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+            </svg>
+          </div>
+          <div class="time-item-text">
+            <strong>For peace of mind</strong>
+            <span>QR-tagged bags. Real-time weight. Full chain of custody. Your clothes are safe with us.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ HOW IT WORKS ══════════ -->
+  <section class="how">
+    <p class="section-eyebrow reveal">How it works</p>
+    <h2 class="section-heading reveal">Four steps. Zero hassle.</h2>
+    <div class="steps">
+
+      <div class="step reveal" data-delay="0">
+        <div class="step-num">01</div>
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="3.5"/>
+            <path d="M3 9h18M8 2v4M16 2v4"/>
+          </svg>
+        </div>
+        <h3 class="step-title">You Schedule</h3>
+        <p class="step-body">Book online in 2 minutes. Pick your weight tier and pickup window. That's it! you're done with laundry!</p>
+      </div>
+
+      <div class="step reveal" data-delay="100">
+        <div class="step-num">02</div>
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1" y="3" width="15" height="13" rx="2"/>
+            <path d="M16 8h4l3 5v3h-7V8zM5.5 21a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM18.5 21a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
+          </svg>
+        </div>
+        <h3 class="step-title">We Arrive</h3>
+        <p class="step-body">Our driver shows up in a marked vehicle. Every bag is QR-tagged and weighed on your doorstep in real time.</p>
+      </div>
+
+      <div class="step reveal" data-delay="200">
+        <div class="step-num">03</div>
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/>
+          </svg>
+        </div>
+        <h3 class="step-title">Washed &amp; Folded</h3>
+        <p class="step-body">Taken to our vetted partner laundromat. Processed to your preferences. Track every step via QR scan.</p>
+      </div>
+
+      <div class="step reveal" data-delay="300">
+        <div class="step-num">04</div>
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <h3 class="step-title">Back at Your Door</h3>
+        <p class="step-body">Clean, folded, on time. Confirmed in the app. You never had to think about it once.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════ TRUST NUMBERS ══════════ -->
+  <section class="trust">
+    <div class="trust-inner">
+      <div class="trust-item reveal" data-delay="0">
+        <div class="trust-stat">$1.83</div>
+        <div class="trust-label">Per pound — avg. blended rate</div>
+      </div>
+      <div class="trust-item reveal" data-delay="100">
+        <div class="trust-stat">24%</div>
+        <div class="trust-label">Gross margin on every order</div>
+      </div>
+      <div class="trust-item reveal" data-delay="200">
+        <div class="trust-stat">34</div>
+        <div class="trust-label">Customers to break even</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ TEAM ══════════ -->
+  <section class="team">
+    <p class="section-eyebrow reveal">The founders</p>
+    <h2 class="section-heading reveal">Built by people who hate doing laundry.</h2>
+
+    <div class="team-row">
+
+      <div class="member reveal" data-delay="0">
+        <img class="photo" src="jose_headshot.jpeg" alt="Jose Hinojosa">
+        <p class="member-role">CEO &amp; Operations</p>
+        <p class="member-name">Jose Hinojosa</p>
+        <p class="member-bio">Finance &amp; Global Supply Chain, Wayne State. Already runs routes, sales, and client relationships solo through Hinojosa Landscaping LLC. That's exactly the skill set Sudsly runs on.</p>
+        <a class="member-link" href="https://linkedin.com/in/josehinojosa" target="_blank" rel="noopener">linkedin.com/in/josehinojosa</a>
+      </div>
+
+      <div class="member reveal" data-delay="120">
+        <img class="photo" src="sam_headshot.jpeg" alt="Sam Arora">
+        <p class="member-role">CTO &amp; Product</p>
+        <p class="member-name">Sam Arora</p>
+        <p class="member-bio">Computer Science, Wayne State. Enrolled in Uber's Software Engineering Prep Program. Building the Sudsly platform from scratch — app, QR system, driver portal, partner dashboard.</p>
+        <a class="member-link" href="https://linkedin.com/in/arorasamaksh" target="_blank" rel="noopener">linkedin.com/in/arorasamaksh</a>
+      </div>
+
+    </div>
+    <p class="team-note reveal">Mentor: Jackie Spencer — Co-Founder &amp; CEO, Vylvet · Detroit Startup Ecosystem</p>
+  </section>
+
+  <!-- ══════════ EMAIL CTA ══════════ -->
+
+
+  <!-- ══════════ FOOTER ══════════ -->
+  <footer>
+    <p class="footer-text">Sudsly · Detroit-built</p>
+  </footer>
+
+  <script>
+    // ── Parallax hero ──────────────────────────────────────────────────────────
+    const heroBg = document.getElementById('heroBg');
+    let ticking = false;
+
+    function updateParallax() {
+      // Disable parallax on mobile (touch devices) — fixed bg issues on iOS
+      if (window.innerWidth < 768) {
+        heroBg.style.transform = '';
+        ticking = false;
+        return;
+      }
+      const y = window.scrollY;
+      heroBg.style.transform = `translateY(${y * 0.38}px)`;
+      ticking = false;
+    }
+
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(updateParallax);
+        ticking = true;
+      }
+    }, { passive: true });
+
+    // ── Scroll reveal ──────────────────────────────────────────────────────────
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el    = entry.target;
+        const delay = parseInt(el.dataset.delay || '0', 10);
+        setTimeout(() => el.classList.add('in'), delay);
+        observer.unobserve(el);
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.reveal, .reveal-pop').forEach(el => observer.observe(el));
+
+    // ── Email form → Google Sheets ─────────────────────────────────────────────
+    //
+    // STEP: Paste your deployed Google Apps Script URL here.
+    // (See setup instructions in the HTML comments at the top of this file.)
+    //
+    const SHEET_URL = 'PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+
+    const form       = document.getElementById('signupForm');
+    const successMsg = document.getElementById('successMsg');
+    const submitBtn  = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const input = document.getElementById('emailInput');
+      if (!input.validity.valid) { input.focus(); return; }
+
+      const email = input.value.trim();
+      submitBtn.textContent = 'Saving...';
+      submitBtn.classList.add('loading');
+
+      // If URL is set, POST to Google Sheets; otherwise just show success
+      if (SHEET_URL !== 'PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+        try {
+          // mode: no-cors required for Apps Script — we can't read the response,
+          // but the row gets appended to the sheet regardless.
+          await fetch(SHEET_URL, {
+            method:  'POST',
+            mode:    'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({
+              email,
+              timestamp: new Date().toLocaleString('en-US', { timeZone: 'America/Detroit' })
+            })
+          });
+        } catch (_) {
+          // Silently continue — no-cors fetch may "fail" in the catch but
+          // the data still reaches the sheet. Show success regardless.
+        }
+      }
+
+      form.style.display = 'none';
+      successMsg.style.display  = 'block';
+      successMsg.style.animation = 'fadeUp 0.55s cubic-bezier(0.16,1,0.3,1) both';
+    });
+  </script>
+</body>
+</html>

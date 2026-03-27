@@ -675,6 +675,32 @@
       font-size: 13px;
       color: rgba(255,255,255,0.25);
       letter-spacing: -0.01em;
+      margin-bottom: 16px;
+    }
+
+    .footer-financials {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.45);
+      text-decoration: none;
+      letter-spacing: 0.02em;
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 9px 16px;
+      border-radius: 8px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .footer-financials:hover {
+      color: rgba(255,255,255,0.85);
+      border-color: rgba(255,255,255,0.3);
+    }
+
+    .footer-financials svg {
+      width: 13px;
+      height: 13px;
     }
 
     /* ════════════════════════════════
@@ -919,7 +945,18 @@
 
   <!-- ══════════ FOOTER ══════════ -->
   <footer>
-    <p class="footer-text">Sudsly · Detroit-built</p>
+    <p class="footer-text">© 2026 Sudsly · Detroit-built · sudsly.com</p>
+    <a
+      class="footer-financials"
+      href="https://docs.google.com/spreadsheets/d/1Ibpy8Gm0uv4JZULioET-TYwYheGqN1vY/edit?usp=sharing&ouid=111081916187994451230&rtpof=true&sd=true"
+      target="_blank"
+      rel="noopener"
+    >
+      View Financial Model
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 8h10M9 4l4 4-4 4"/>
+      </svg>
+    </a>
   </footer>
 
   <script>

@@ -678,6 +678,13 @@
       margin-bottom: 16px;
     }
 
+    .footer-links {
+      display: inline-flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
     .footer-financials {
       display: inline-flex;
       align-items: center;
@@ -946,17 +953,30 @@
   <!-- ══════════ FOOTER ══════════ -->
   <footer>
     <p class="footer-text">© 2026 Sudsly · Detroit-built · sudsly.com</p>
-    <a
-      class="footer-financials"
-      href="https://docs.google.com/spreadsheets/d/1Ibpy8Gm0uv4JZULioET-TYwYheGqN1vY/edit?usp=sharing&ouid=111081916187994451230&rtpof=true&sd=true"
-      target="_blank"
-      rel="noopener"
-    >
-      View Financial Model
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 8h10M9 4l4 4-4 4"/>
-      </svg>
-    </a>
+    <div class="footer-links">
+      <a
+        class="footer-financials"
+        href="https://docs.google.com/spreadsheets/d/1Ibpy8Gm0uv4JZULioET-TYwYheGqN1vY/edit?usp=sharing&ouid=111081916187994451230&rtpof=true&sd=true"
+        target="_blank"
+        rel="noopener"
+      >
+        View Financial Model
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 8h10M9 4l4 4-4 4"/>
+        </svg>
+      </a>
+      <a
+        class="footer-financials"
+        href="https://docs.google.com/document/d/1bYj3sj2RRVy-ttlx9ZZLUTk4KcBtBn7Thk7ixxYHNU8/edit?usp=sharing"
+        target="_blank"
+        rel="noopener"
+      >
+        View Report
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 8h10M9 4l4 4-4 4"/>
+        </svg>
+      </a>
+    </div>
   </footer>
 
   <script>
